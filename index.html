@@ -1,0 +1,178 @@
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width,user-scalable=no, initial-scale=1">
+	<title>File API Test</title>
+	<style>
+	
+		body{ font-size:13px; background-image: -webkit-linear-gradient(#FFF 50%, #ECF4FF); }
+		
+		#notice{ background:rgba(51, 51, 51, 0.85); color:#FFF; padding:10px; position:fixed; width:100%; box-sizing:border-box; left: 0; top: 0; z-index:100; visibility:hidden; }
+			#notice.success{ background:rgba(132, 197, 116, 0.9); visibility:visible; }
+			#notice.failure{ background:rgba(197, 116, 116, 0.9); visibility:visible; }
+			
+		#refresh{ position:fixed; top:5px; right:5px; }
+			#refresh button{ border:#87BDE2 solid 1px; width:50px; height:50px; background:#FFF; text-align:center; line-height:50px; font-size:14px; border-radius:50%; color:#838383; }
+			
+		#preview{
+			margin:20px 10px 15px 10px; overflow: hidden;
+		}
+		
+			#preview img{
+				margin:0 10px 10px 0; float:left; border:#CAC9C9 solid 1px; border-radius:5px; box-sizing:border-box; width:200px; height:200px; overflow:hidden;
+			}
+				
+			#choice{
+				z-index: 100;
+				width: 200px;
+				height: 200px;
+				cursor: pointer;
+				border:#CAC9C9 solid 1px;
+				box-sizing:border-box;
+				border-radius:5px;
+				text-align: center;
+				float:left;
+				overflow:hidden;
+			}
+			#choice em{
+				display: block;
+				position:absolute;
+				font-size:100px;
+				line-height:200px;
+				font-style: normal;
+				width:198px;
+				color:#AFAFAF;
+			}
+			
+			#choice.activity,
+			#choice:hover{
+				border:#96C4A1 solid 1px;
+			}
+			
+			#choice.activity em,
+			#choice:hover em{
+				color:#96C4A1;
+			}
+				
+			#choice input{
+				display: block;
+				width: 100%;
+				height: 100%;
+				opacity: 0;
+				cursor: pointer;
+				z-index: 99;
+			}
+		
+		#debug{ clear:both; margin:10px; border: #999 dotted 1px; background: #E5F4FA; border-radius:5px; padding:10px; word-break: break-word; }
+			#debug p{ clear:both; margin:2px; padding:5px; }
+	</style>
+</head>
+<body>
+
+	<div id="refresh">
+		<button type="button" onClick="location.href = '?time='+ Magick.time();">刷新</button>
+	</div>
+	
+	<div id="preview">
+	
+		<div id="choice">
+			<em>+</em>
+			<input type="file" name="file" id="fileobj" multiple />
+		</div>
+	
+	</div>
+	
+	<div id="debug">
+		<p>请选择本地文件……</p>
+	</div>
+	
+	<script src="pack.magick.js"></script>	
+	<script>
+	
+	function $( obj ){
+		return document.getElementById( obj );	
+	}
+	
+	//处理进程
+	var Proce = function( e ){
+		
+		//压缩图片
+		Magick.debug( '正在压缩图片' );
+
+		//对图片进行预处理
+		Magick.parser( e, { width : 200, height : 200, hrange : 'center', vrange : 'center', unit : 'px' },{
+
+			//文件类型出错时回调
+			error : function( type, msg ){
+				Magick.debug( '错误类型：'+ type +'，错误信息：'+ msg );
+			},
+
+			//文件校验通过时回调
+			valid : function( data, image, filename ){
+				
+				//原图尺寸
+				console.log( '原图尺寸：', image.naturalWidth, image.naturalHeight );
+			
+				//预览处理过的图片
+				var img = document.createElement('img');
+					img.src = data;
+				
+				$("preview").insertBefore( img, $("choice") );
+				
+				//压缩图片
+				Magick.debug( '图片压缩完成', 'success', 5 );
+				
+				//执行图片上传操作
+				Magick.upload( data, 'upload.php', { filename : filename, formdata : { timeline : Magick.time() } }, {
+					
+					//上传完成回调
+					success : function( response ){
+						Magick.debug( '图片上传完成', 'success', 5 );
+						console.log( JSON.parse( response ) );
+					},
+					
+					//上传过程回调
+					progress : function( percentage ){
+						Magick.debug( '上传进度：'+ percentage +'%' );
+					}
+					
+				} );
+			}
+			
+		});
+	
+	};
+	
+	////////////////
+
+	//绑定文件上传框
+	$('fileobj').addEventListener('change', Proce, false);
+	
+	////////////////
+	
+	//绑定文件拖拽事件
+	var wrap = document.body;
+	
+	//将文件拖离
+	wrap.addEventListener('dragleave', function( e ) {
+		e.preventDefault();
+		$('choice').className = '';
+	}, false);
+	
+	//文件拖动中
+	wrap.addEventListener('dragover', function( e ) {
+		e.preventDefault();
+		$('choice').className = 'activity';
+	}, false);
+	
+	//将文件释放
+	wrap.addEventListener('drop', function( e ) {
+		e.preventDefault();
+		$('choice').className = '';
+		console.log( e.dataTransfer.files );
+		Proce( e );
+	}, false);
+	
+	</script>
+</body>
+</html>
