@@ -1,16 +1,10 @@
 /*!
-*	(C)2018 VeryIDE
-*	http://www.veryide.com/
-*	Magick 照片上传压缩组件
-*	$Id: Magick.js 2018/07/30 Lay $
-*/
-
-/**
  * @name Magick
  * @class 图片预处理组件，支持压缩、裁切与异步上传
- * @author Lay
- * @version 1.7
+ * @date: 2018/08/02
  * @see http://www.veryide.com/projects/magick/
+ * @author Lay
+ * @copyright VeryIDE
  * @constructor
  */
 var Magick = {
