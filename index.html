@@ -87,10 +87,15 @@
 	</div>
 	
 	<script src="pack.magick.js"></script>	
+	<script src="pack.exif.js"></script>	
 	<script>
 	
 	function $( obj ){
 		return document.getElementById( obj );	
+	}
+
+	Magick.debug = function( msg ){
+		$('debug').innerHTML += '<p>' + msg + '</p>';
 	}
 	
 	//处理进程
@@ -109,9 +114,6 @@
 
 			//文件校验通过时回调
 			valid : function( data, image, filename ){
-				
-				//原图尺寸
-				console.log( '原图尺寸：', image.naturalWidth, image.naturalHeight );
 			
 				//预览处理过的图片
 				var img = document.createElement('img');

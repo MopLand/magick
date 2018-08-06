@@ -1,7 +1,7 @@
 /*!
  * @name Magick
  * @class 图片预处理组件，支持压缩、裁切与异步上传
- * @date: 2018/08/02
+ * @date: 2018/08/06
  * @see http://www.veryide.com/projects/magick/
  * @author Lay
  * @copyright VeryIDE
@@ -284,21 +284,54 @@ var Magick = {
 		
 		//旋转图片
 		if( option.orientation ){
-			
-			ctx.translate( cvs.width/2, cvs.height/2 );
-			
+
+			this.debug( '处理图片旋转：' + option.orientation );
+
 			switch( option.orientation ){
-				case 8:
-					ctx.rotate(90 * Math.PI/180);
+
+				//水平翻转
+				case 2:
+					ctx.translate( cvs.width, 0 );
+					ctx.scale( -1, 1 ); 
 				break;
-				
+
+				//180°
 				case 3:
-					ctx.rotate(180 * Math.PI/180);
+					ctx.translate( cvs.width, cvs.height);
+					ctx.rotate( Math.PI ); 
 				break;
-				
+
+				//垂直翻转
+				case 4: 
+					ctx.translate( 0, cvs.height );
+					ctx.scale( 1, -1 ); 
+				break;
+
+				//顺时针90°+水平翻转
+				case 5:
+					ctx.rotate(0.5 * Math.PI);
+					ctx.scale( 1, -1 ); 
+				break;
+
+				//顺时针90°
 				case 6:
-					ctx.rotate(-90 * Math.PI/180);
+					ctx.rotate( 0.5 * Math.PI );
+					ctx.translate( 0, -cvs.height ); 
 				break;
+
+				//顺时针90°+垂直翻转
+				case 7:
+					ctx.rotate( 0.5 * Math.PI );
+					ctx.translate( cvs.width, -cvs.height );
+					ctx.scale(-1,1); 
+				break;
+
+				//逆时针90°
+				case 8:
+					ctx.rotate( -0.5 * Math.PI );
+					ctx.translate( -cvs.width, 0 ); 
+				break;
+
 			}
 		}
 		
@@ -540,9 +573,15 @@ var Magick = {
 					var src = e.target.result;
 					
 					//读取 EXIF 信息
-					if( typeof EXIF != 'undefined' ){						
-						var exif = EXIF.readFromBinaryFile( new BinaryFile( src ) );
+					if( typeof EXIF != 'undefined' ){
+
+						// 转换二进制数据
+						var base64 = src.replace(/^.*?,/,'');
+						var binary = Magick.atob(base64);
+						var exif = EXIF.readFromBinaryFile( new BinaryFile( binary ) );
+
 						params.orientation = exif.Orientation;
+						Magick.debug( '当前图片方向：'+ params.orientation );
 					}
 					
 					//兼容 Android
