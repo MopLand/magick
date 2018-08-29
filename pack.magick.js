@@ -1,7 +1,7 @@
 /*!
  * @name Magick
  * @class 图片预处理组件，支持压缩、裁切与异步上传
- * @date: 2018/08/06
+ * @date: 2018/08/29
  * @see http://www.veryide.com/projects/magick/
  * @author Lay
  * @copyright VeryIDE
@@ -548,7 +548,7 @@ var Magick = {
 		
 		//处理多文件
 		for( var i=0; i < size; i++ ){
-			
+
 			var file = port.files[i],
 				reader = new FileReader();
 			
@@ -569,7 +569,7 @@ var Magick = {
 				return function(e) {
 						
 					//载入到临时图片
-					var tmp = new Image();					
+					var tmp = new Image();
 					var src = e.target.result;
 					
 					//读取 EXIF 信息
@@ -606,7 +606,7 @@ var Magick = {
 						event.valid && event.valid( data, this, self.name );
 				
 					}
-											
+
 				};
 			})(file);
 			
